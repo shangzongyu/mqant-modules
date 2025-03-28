@@ -4,18 +4,20 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package room
 
 import (
-	"github.com/liangdas/mqant/module"
 	"sync"
+
+	"github.com/shangzongyu/mqant/module"
 )
 
 type Room struct {
@@ -33,18 +35,18 @@ func NewRoom(module module.App) *Room {
 	return room
 }
 
-func (self *Room) OnInit(module module.App, roomId int) error {
-	self.app = module
-	self.roomId = roomId
+func (ro *Room) OnInit(module module.App, roomId int) error {
+	ro.app = module
+	ro.roomId = roomId
 	return nil
 }
 
-func (self *Room) RoomId() int {
-	return self.roomId
+func (ro *Room) RoomId() int {
+	return ro.roomId
 }
 
-func (self *Room) CreateById(app module.App, tableId string, newTablefunc NewTableFunc) (BaseTable, error) {
-	if table, ok := self.tables.Load(tableId); ok {
+func (ro *Room) CreateById(app module.App, tableId string, newTablefunc NewTableFunc) (BaseTable, error) {
+	if table, ok := ro.tables.Load(tableId); ok {
 		table.(BaseTable).Run()
 		return table.(BaseTable), nil
 	}
@@ -52,19 +54,19 @@ func (self *Room) CreateById(app module.App, tableId string, newTablefunc NewTab
 	if err != nil {
 		return nil, err
 	}
-	self.tables.Store(table.TableId(), table)
+	ro.tables.Store(table.TableId(), table)
 	return table, nil
 }
 
-func (self *Room) GetTable(tableId string) BaseTable {
-	if table, ok := self.tables.Load(tableId); ok {
+func (ro *Room) GetTable(tableId string) BaseTable {
+	if table, ok := ro.tables.Load(tableId); ok {
 		table.(BaseTable).Run()
 		return table.(BaseTable)
 	}
 	return nil
 }
 
-func (self *Room) DestroyTable(tableId string) error {
-	self.tables.Delete(tableId)
+func (ro *Room) DestroyTable(tableId string) error {
+	ro.tables.Delete(tableId)
 	return nil
 }

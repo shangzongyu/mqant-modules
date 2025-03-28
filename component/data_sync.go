@@ -1,16 +1,17 @@
 package component
 
 import (
-	. "github.com/liangdas/mqant-modules/component/rsync"
-	"github.com/liangdas/mqant/log"
 	"hash/crc32"
 	"time"
+
+	. "github.com/shangzongyu/mqant-modules/component/rsync"
+	"github.com/shangzongyu/mqant/log"
 )
 
 const (
 	FULL = iota
 	PATCH
-	NEWEST  //无需同步
+	NEWEST //无需同步
 )
 
 type InterDataSync interface {
@@ -38,7 +39,8 @@ func (ds *DataSync) OnInitDataSync(Sub SyncBytes, blockSize int) error {
 	return nil
 }
 
-/**
+/*
+*
 重置补丁
 */
 func (ds *DataSync) ResetData() error {
@@ -53,7 +55,8 @@ func (ds *DataSync) SyncDate() {
 	ds.syncDate = time.Now().UnixNano()
 }
 
-/**
+/*
+*
 补丁数据
 */
 func (ds *DataSync) Marshal(table interface{}) ([]byte, int, error) {

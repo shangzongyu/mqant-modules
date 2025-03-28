@@ -13,8 +13,8 @@ import (
 	"crypto/md5"
 	"encoding/binary"
 	"fmt"
-	"github.com/liangdas/mqant/log"
 	"github.com/pkg/errors"
+	"github.com/shangzongyu/mqant/log"
 	"io"
 	"math"
 )
@@ -49,7 +49,8 @@ func (this *BlockHash) AddIndex(index int) {
 	}
 }
 
-/**
+/*
+*
 hu获取index,尽量选取大于且接近pro的
 */
 func (this *BlockHash) GetIndex(pro int) int {
@@ -214,7 +215,8 @@ const (
 	RS_OP_DATA_N4  uint8 = 0x06
 )
 
-/**
+/*
+*
 填充规则
 mode   1 字节
 
@@ -225,7 +227,6 @@ END_INDEX
 DATA
 LENGHT
 DATA[]
-
 */
 func (this *LRsync) CreateDelta(opsChannel []RSyncOp, modifiedSize int, crc32 uint32) []byte {
 	b := bytes.NewBuffer(make([]byte, 0))

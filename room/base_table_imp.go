@@ -4,22 +4,24 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package room
 
 import (
-	"github.com/liangdas/mqant/log"
-	"github.com/liangdas/mqant/module"
-	"github.com/liangdas/mqant/module/modules/timer"
 	"runtime"
 	"sync"
 	"time"
+
+	"github.com/shangzongyu/mqant/log"
+	"github.com/shangzongyu/mqant/module"
+	"github.com/shangzongyu/mqant/module/modules/timer"
 )
 
 type SubTable interface {
@@ -132,7 +134,7 @@ func (this *BaseTableImp) Runing() bool {
 	return false
 }
 
-//初始化table
+// 初始化table
 func (this *BaseTableImp) Run() {
 	this.lock.Lock()
 	defer this.lock.Unlock()
@@ -143,7 +145,7 @@ func (this *BaseTableImp) Run() {
 	}
 }
 
-//停止table
+// 停止table
 func (this *BaseTableImp) Finish() {
 	this.lock.Lock()
 	defer this.lock.Unlock()
@@ -159,17 +161,17 @@ func (this *BaseTableImp) Finish() {
 	}
 }
 
-//可以进行一些初始化的工作在table第一次被创建的时候调用
+// 可以进行一些初始化的工作在table第一次被创建的时候调用
 func (this *BaseTableImp) OnCreate() {
 	panic("implement func OnCreate()")
 }
 
-//在table销毁时调用,将无法再接收用户消息 销毁：onPause()->onStop()->onDestroy()
+// 在table销毁时调用,将无法再接收用户消息 销毁：onPause()->onStop()->onDestroy()
 func (this *BaseTableImp) OnDestroy() {
 	panic("implement func OnDestroy()")
 }
 
-//在table超时是调用
+// 在table超时是调用
 func (this *BaseTableImp) OnTimeOut() {
 	this.Finish()
 }

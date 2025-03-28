@@ -1,7 +1,7 @@
 package room
 
 import (
-	"github.com/liangdas/mqant/log"
+	"github.com/shangzongyu/mqant/log"
 	"reflect"
 	"time"
 )
@@ -18,14 +18,10 @@ type ErrorHandle func(msg *QueueMsg, err error)
 
 type RecoverHandle func(msg *QueueMsg, err error)
 
-/**
-当房间关闭是通知持有方注销
-*/
+// LifeCallback 当房间关闭是通知持有方注销
 type LifeCallback func(table BaseTable) error
 
-/*
-获取可以路由到该房间的地址路径
-*/
+// Route 获取可以路由到该房间的地址路径
 type Route func(TableId string) string
 
 func newOptions(opts ...Option) Options {

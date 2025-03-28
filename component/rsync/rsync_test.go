@@ -8,7 +8,7 @@ package rsync
 
 import "testing"
 import (
-	"github.com/liangdas/mqant/log"
+	"github.com/shangzongyu/mqant/log"
 	"hash/crc32"
 	"io/ioutil"
 )
