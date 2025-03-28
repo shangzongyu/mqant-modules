@@ -11,10 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package sms
 
 var (
 	MobileTTLFormat     = "mobile:verify:code:%s"    //手机验证码TTL控制 %s=mobile
 	MobileSmsCodeFormat = "mobile:verify:code:%s:%s" //手机验证码存储 %s=mobile %s=smsCode  EXPIRE=60s
-
 )

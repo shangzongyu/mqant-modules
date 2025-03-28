@@ -14,46 +14,46 @@
 package room
 
 import (
-    "github.com/shangzongyu/mqant/gate"
+	"github.com/shangzongyu/mqant/gate"
 )
 
 var (
-    Uninitialized = 0 //未初始化
-    Initialized   = 1 //已初始化的
-    Active        = 2 //活跃状态
-    Finished      = 4 //已停止状态
+	Uninitialized = 0 //未初始化
+	Initialized   = 1 //已初始化的
+	Active        = 2 //活跃状态
+	Finished      = 4 //已停止状态
 )
 
 type BaseTable interface {
-    Options() Options
-    TableId() string
+	Options() Options
+	TableId() string
 
-    OnCreate()    //可以进行一些初始化的工作在table第一次被创建的时候调用,可接受处理消息
-    OnDestroy()   //在table销毁时调用 销毁：onPause()->onStop()->onDestroy()
-    OnTimeOut()   //当table超时了
-    Runing() bool //t able是否在Runing中,只要在Runing中就能接收和处理消息
-    Run()
-    Finish() //停止table
+	OnCreate()    //可以进行一些初始化的工作在table第一次被创建的时候调用,可接受处理消息
+	OnDestroy()   //在table销毁时调用 销毁：onPause()->onStop()->onDestroy()
+	OnTimeOut()   //当table超时了
+	Runing() bool //t able是否在Runing中,只要在Runing中就能接收和处理消息
+	Run()
+	Finish() //停止table
 
-    Register(id string, f interface{})
-    SetReceive(receive QueueReceive)
-    PutQueue(_func string, params ...interface{}) error
-    ExecuteEvent(arge interface{})
+	Register(id string, f interface{})
+	SetReceive(receive QueueReceive)
+	PutQueue(_func string, params ...interface{}) error
+	ExecuteEvent(arge interface{})
 }
 
 type BasePlayer interface {
-    IsBind() bool
-    Bind(session gate.Session) BasePlayer
+	IsBind() bool
+	Bind(session gate.Session) BasePlayer
 
-    UnBind() error
-    // OnRequest 玩家主动发请求时触发
-    OnRequest(session gate.Session)
-    // OnResponse  服务器主动发送消息给玩家时触发
-    OnResponse(session gate.Session)
-    // GetLastReqResDate 服务器跟玩家最后一次成功通信时间
-    GetLastReqResDate() int64
-    Body() interface{}
-    SetBody(body interface{})
-    Session() gate.Session
-    Type() string
+	UnBind() error
+	// OnRequest 玩家主动发请求时触发
+	OnRequest(session gate.Session)
+	// OnResponse  服务器主动发送消息给玩家时触发
+	OnResponse(session gate.Session)
+	// GetLastReqResDate 服务器跟玩家最后一次成功通信时间
+	GetLastReqResDate() int64
+	Body() interface{}
+	SetBody(body interface{})
+	Session() gate.Session
+	Type() string
 }

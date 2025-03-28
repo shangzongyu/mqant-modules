@@ -4,13 +4,14 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package sms
 
 import (
@@ -19,13 +20,14 @@ import (
 	"crypto/sha1"
 	"encoding/base64"
 	"encoding/hex"
-	"github.com/liangdas/mqant/log"
-	"github.com/liangdas/mqant/utils/uuid"
 	"math/rand"
 	"net/url"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/shangzongyu/mqant/log"
+	"github.com/shangzongyu/mqant/utils/uuid"
 )
 
 func RandInt64(min, max int64) int64 {
@@ -36,22 +38,22 @@ func RandInt64(min, max int64) int64 {
 }
 func SendCloudSignature(smsKey string, param map[string]string) string {
 	delete(param, "signature")
-	sorted_keys := make([]string, 0)
+	sortedKeys := make([]string, 0)
 	for k, _ := range param {
-		sorted_keys = append(sorted_keys, k)
+		sortedKeys = append(sortedKeys, k)
 	}
 
 	// sort 'string' key in increasing order
-	sort.Strings(sorted_keys)
+	sort.Strings(sortedKeys)
 
-	param_strs := make([]string, 0)
-	for _, k := range sorted_keys {
-		param_strs = append(param_strs, k+"="+param[k])
+	paramStrs := make([]string, 0)
+	for _, k := range sortedKeys {
+		paramStrs = append(paramStrs, k+"="+param[k])
 	}
-	param_str := strings.Join(param_strs, "&")
-	sign_str := smsKey + "&" + param_str + "&" + smsKey
+	paramStr := strings.Join(paramStrs, "&")
+	signStr := smsKey + "&" + paramStr + "&" + smsKey
 	h := md5.New()
-	h.Write([]byte(sign_str)) // 需要加密的字符串
+	h.Write([]byte(signStr)) // 需要加密的字符串
 	signature := h.Sum(nil)
 	sign := hex.EncodeToString(signature)
 	param["signature"] = sign
@@ -82,19 +84,19 @@ func AliyunPOPSignature(HTTPMethod, accessKeyId string, accessSecret string, par
 
 	//log.Error(time.Now().Format("2006-01-02T15:04:05Z"))
 	//log.Error(time.Now().In(local).Format("2006-01-02T15:04:05Z"))
-	sorted_keys := make([]string, 0)
+	sortedKeys := make([]string, 0)
 	for k, _ := range param {
-		sorted_keys = append(sorted_keys, k)
+		sortedKeys = append(sortedKeys, k)
 	}
 
 	// sort 'string' key in increasing order
-	sort.Strings(sorted_keys)
+	sort.Strings(sortedKeys)
 
-	param_strs := make([]string, 0)
-	for _, k := range sorted_keys {
-		param_strs = append(param_strs, specialUrlEncode(k)+"="+specialUrlEncode(param[k]))
+	paramStrs := make([]string, 0)
+	for _, k := range sortedKeys {
+		paramStrs = append(paramStrs, specialUrlEncode(k)+"="+specialUrlEncode(param[k]))
 	}
-	sortedQueryString := strings.Join(param_strs, "&")
+	sortedQueryString := strings.Join(paramStrs, "&")
 	//log.Error(sortedQueryString)
 	//HTTPMethod + “&” + specialUrlEncode(“/”) + ”&” + specialUrlEncode(sortedQueryString)
 	stringToSign := HTTPMethod + "&" + specialUrlEncode("/") + "&" + specialUrlEncode(sortedQueryString)

@@ -1,4 +1,5 @@
-/**
+/*
+*
 一定要记得在confin.json配置这个模块的参数,否则无法使用
 */
 package sms
@@ -6,16 +7,17 @@ package sms
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gomodule/redigo/redis"
-	"github.com/liangdas/mqant-modules/tools"
-	"github.com/liangdas/mqant/conf"
-	"github.com/liangdas/mqant/gate"
-	"github.com/liangdas/mqant/module"
-	"github.com/liangdas/mqant/module/base"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/gomodule/redigo/redis"
+	"github.com/shangzongyu/mqant-modules/tools"
+	"github.com/shangzongyu/mqant/conf"
+	"github.com/shangzongyu/mqant/gate"
+	"github.com/shangzongyu/mqant/module"
+	"github.com/shangzongyu/mqant/module/base"
 )
 
 var Module = func() module.Module {
@@ -31,48 +33,50 @@ type SMS struct {
 	Ailyun    map[string]interface{}
 }
 
-func (self *SMS) GetType() string {
+func (sms *SMS) GetType() string {
 	//很关键,需要与配置文件中的Module配置对应
 	return "sms"
 }
-func (self *SMS) Version() string {
+
+func (sms *SMS) Version() string {
 	//可以在监控时了解代码版本
 	return "1.0.0"
 }
-func (self *SMS) OnInit(app module.App, settings *conf.ModuleSettings) {
-	self.BaseModule.OnInit(self, app, settings)
-	self.RedisUrl = self.GetModuleSettings().Settings["RedisUrl"].(string)
-	self.TTL = int64(self.GetModuleSettings().Settings["TTL"].(float64))
-	if SendCloud, ok := self.GetModuleSettings().Settings["SendCloud"]; ok {
-		self.SendCloud = SendCloud.(map[string]interface{})
+
+func (sms *SMS) OnInit(app module.App, settings *conf.ModuleSettings) {
+	sms.BaseModule.OnInit(sms, app, settings)
+	sms.RedisUrl = sms.GetModuleSettings().Settings["RedisUrl"].(string)
+	sms.TTL = int64(sms.GetModuleSettings().Settings["TTL"].(float64))
+	if SendCloud, ok := sms.GetModuleSettings().Settings["SendCloud"]; ok {
+		sms.SendCloud = SendCloud.(map[string]interface{})
 	}
-	if Ailyun, ok := self.GetModuleSettings().Settings["Ailyun"]; ok {
-		self.Ailyun = Ailyun.(map[string]interface{})
+	if Ailyun, ok := sms.GetModuleSettings().Settings["Ailyun"]; ok {
+		sms.Ailyun = Ailyun.(map[string]interface{})
 	}
-	self.GetServer().RegisterGO("SendVerifiycode", self.doSendVerifiycode) //演示后台模块间的rpc调用
-	self.GetServer().RegisterGO("GetCodeData", self.getCodeData)           //演示后台模块间的rpc调用
+	sms.GetServer().RegisterGO("SendVerifiycode", sms.doSendVerifiycode) //演示后台模块间的rpc调用
+	sms.GetServer().RegisterGO("GetCodeData", sms.getCodeData)           //演示后台模块间的rpc调用
 }
 
-func (self *SMS) Run(closeSig chan bool) {
+func (sms *SMS) Run(closeSig chan bool) {
 }
 
-func (self *SMS) OnDestroy() {
+func (sms *SMS) OnDestroy() {
 	//一定别忘了关闭RPC
-	self.GetServer().OnDestroy()
+	sms.GetServer().OnDestroy()
 }
 
-func (self *SMS) aliyun(phone string, smsCode int64) string {
+func (sms *SMS) aliyun(phone string, smsCode int64) string {
 	param := map[string]string{
 		"Action":        "SendSms",
 		"Version":       "2017-05-25",
 		"RegionId":      "cn-hangzhou",
 		"PhoneNumbers":  phone,
-		"SignName":      self.Ailyun["SignName"].(string),
-		"TemplateCode":  self.Ailyun["TemplateCode"].(string),
+		"SignName":      sms.Ailyun["SignName"].(string),
+		"TemplateCode":  sms.Ailyun["TemplateCode"].(string),
 		"TemplateParam": fmt.Sprintf("{\"smsCode\": \"%d\"}", smsCode),
 		"OutId":         fmt.Sprintf("%d", time.Now().Unix()*1000),
 	}
-	AliyunPOPSignature("POST", self.Ailyun["AccessKeyId"].(string), self.Ailyun["AccessSecret"].(string), param)
+	AliyunPOPSignature("POST", sms.Ailyun["AccessKeyId"].(string), sms.Ailyun["AccessSecret"].(string), param)
 	values := url.Values{}
 	for k, v := range param {
 		values[k] = []string{v}
@@ -96,18 +100,18 @@ func (self *SMS) aliyun(phone string, smsCode int64) string {
 	}
 
 	/**
-	# 部分成功
-		{
-		    "message":"部分成功",
-		    "info":{
-			    "successCount":1,
-			    "failedCount":1,
-			    "items":[{"phone":"1312222","vars":{},"message":"手机号格式错误"}],
-			    "smsIds":["1458113381893_15_3_11_1ainnq$131112345678"]}
-			    },
-		    "result":true,
-		    "statusCode":311
-		}
+	  # 部分成功
+	  	{
+	  	    "message":"部分成功",
+	  	    "info":{
+	  		    "successCount":1,
+	  		    "failedCount":1,
+	  		    "items":[{"phone":"1312222","vars":{},"message":"手机号格式错误"}],
+	  		    "smsIds":["1458113381893_15_3_11_1ainnq$131112345678"]}
+	  		    },
+	  	    "result":true,
+	  	    "statusCode":311
+	  	}
 	*/
 	ret := map[string]interface{}{}
 	err = json.Unmarshal(body, &ret)
@@ -129,16 +133,16 @@ func (self *SMS) aliyun(phone string, smsCode int64) string {
 	}
 }
 
-func (self *SMS) sendcloud(phone string, smsCode int64) string {
+func (sms *SMS) sendcloud(phone string, smsCode int64) string {
 	param := map[string]string{
-		"smsUser":    self.SendCloud["SmsUser"].(string),
-		"templateId": self.SendCloud["TemplateId"].(string),
+		"smsUser":    sms.SendCloud["SmsUser"].(string),
+		"templateId": sms.SendCloud["TemplateId"].(string),
 		"msgType":    "0",
 		"phone":      phone,
 		"vars":       fmt.Sprintf("{\"smsCode\": \"%d\"}", smsCode),
 		"timestamp":  fmt.Sprintf("%d", time.Now().Unix()*1000),
 	}
-	SendCloudSignature(self.SendCloud["SmsKey"].(string), param)
+	SendCloudSignature(sms.SendCloud["SmsKey"].(string), param)
 	values := url.Values{}
 	for k, v := range param {
 		values[k] = []string{v}
@@ -157,18 +161,18 @@ func (self *SMS) sendcloud(phone string, smsCode int64) string {
 	}
 
 	/**
-	# 部分成功
-		{
-		    "message":"部分成功",
-		    "info":{
-			    "successCount":1,
-			    "failedCount":1,
-			    "items":[{"phone":"1312222","vars":{},"message":"手机号格式错误"}],
-			    "smsIds":["1458113381893_15_3_11_1ainnq$131112345678"]}
-			    },
-		    "result":true,
-		    "statusCode":311
-		}
+	  # 部分成功
+	  	{
+	  	    "message":"部分成功",
+	  	    "info":{
+	  		    "successCount":1,
+	  		    "failedCount":1,
+	  		    "items":[{"phone":"1312222","vars":{},"message":"手机号格式错误"}],
+	  		    "smsIds":["1458113381893_15_3_11_1ainnq$131112345678"]}
+	  		    },
+	  	    "result":true,
+	  	    "statusCode":311
+	  	}
 	*/
 	ret := map[string]interface{}{}
 	err = json.Unmarshal(body, &ret)
@@ -190,11 +194,12 @@ func (self *SMS) sendcloud(phone string, smsCode int64) string {
 	}
 }
 
-/**
+/*
+*
 发送验证码
 */
-func (self *SMS) doSendVerifiycode(session gate.Session, phone string, purpose string, extra map[string]interface{}) (string, string) {
-	conn := tools.GetRedisFactory().GetPool(self.RedisUrl).Get()
+func (sms *SMS) doSendVerifiycode(session gate.Session, phone string, purpose string, extra map[string]interface{}) (string, string) {
+	conn := tools.GetRedisFactory().GetPool(sms.RedisUrl).Get()
 	defer conn.Close()
 	ttl, err := redis.Int64(conn.Do("TTL", fmt.Sprintf(MobileTTLFormat, phone)))
 	if err != nil {
@@ -205,11 +210,11 @@ func (self *SMS) doSendVerifiycode(session gate.Session, phone string, purpose s
 	}
 
 	smsCode := RandInt64(100000, 999999)
-	if self.Ailyun != nil {
-		errstr := self.aliyun(phone, smsCode)
+	if sms.Ailyun != nil {
+		errstr := sms.aliyun(phone, smsCode)
 		if errstr != "" {
-			if self.SendCloud != nil {
-				errstr := self.sendcloud(phone, smsCode)
+			if sms.SendCloud != nil {
+				errstr := sms.sendcloud(phone, smsCode)
 				if errstr != "" {
 					return "", errstr
 				}
@@ -217,8 +222,8 @@ func (self *SMS) doSendVerifiycode(session gate.Session, phone string, purpose s
 				return "", errstr
 			}
 		}
-	} else if self.SendCloud != nil {
-		errstr := self.sendcloud(phone, smsCode)
+	} else if sms.SendCloud != nil {
+		errstr := sms.sendcloud(phone, smsCode)
 		if errstr != "" {
 			return "", errstr
 		}
@@ -229,7 +234,7 @@ func (self *SMS) doSendVerifiycode(session gate.Session, phone string, purpose s
 	if err != nil {
 		return "", err.Error()
 	}
-	_, err = conn.Do("EXPIRE", fmt.Sprintf(MobileTTLFormat, phone), self.TTL)
+	_, err = conn.Do("EXPIRE", fmt.Sprintf(MobileTTLFormat, phone), sms.TTL)
 	if err != nil {
 		return "", err.Error()
 	}
@@ -246,19 +251,20 @@ func (self *SMS) doSendVerifiycode(session gate.Session, phone string, purpose s
 	if err != nil {
 		return "", err.Error()
 	}
-	_, err = conn.Do("EXPIRE", fmt.Sprintf(MobileSmsCodeFormat, phone, smsCode), self.TTL*5)
+	_, err = conn.Do("EXPIRE", fmt.Sprintf(MobileSmsCodeFormat, phone, smsCode), sms.TTL*5)
 	if err != nil {
 		return "", err.Error()
 	}
 	return "验证码发送成功", ""
 }
 
-/**
+/*
+*
 获取验证码参数
 如果验证码已过期将返回失败
 */
-func (self *SMS) getCodeData(session gate.Session, phone string, smsCode int64, del bool) (map[string]interface{}, string) {
-	conn := tools.GetRedisFactory().GetPool(self.RedisUrl).Get()
+func (sms *SMS) getCodeData(session gate.Session, phone string, smsCode int64, del bool) (map[string]interface{}, string) {
+	conn := tools.GetRedisFactory().GetPool(sms.RedisUrl).Get()
 	defer conn.Close()
 	r, err := redis.Bytes(conn.Do("GET", fmt.Sprintf(MobileSmsCodeFormat, phone, smsCode)))
 	if err != nil {

@@ -4,7 +4,7 @@
 
 # 依赖模块
 
-    go get github.com/liangdas/mqant
+    go get github.com/shangzongyu/mqant
 
 # 外部依赖
 
@@ -15,7 +15,7 @@
 
 ### 1，导入项目
 
-    go get github.com/liangdas/mqant-modules
+    go get github.com/shangzongyu/mqant-modules
 
 ### 2，将模块加入启动列表
 
